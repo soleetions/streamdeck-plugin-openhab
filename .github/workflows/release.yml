@@ -1,0 +1,53 @@
+name: Release Stream Deck Plugin
+
+permissions:
+    contents: write
+
+on:
+    push:
+        tags:
+            - "v*.*.*.*"
+
+jobs:
+    release:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+
+            - name: Ensure tag is on main
+              run: git branch --contains $GITHUB_SHA | grep main
+
+            - name: Verify manifest version matches tag
+              run: |
+                  TAG=${GITHUB_REF#refs/tags/v}
+                  MANIFEST_VERSION=$(jq -r '.Version' manifest.json)
+                  test "$TAG" = "$MANIFEST_VERSION"
+
+            - name: Set up Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: "20"
+                  cache: "npm"
+
+            - name: Install dependencies
+              run: npm ci
+
+            - name: Install Stream Deck CLI
+              run: npm install -g @elgato/cli
+
+            - name: Build the plugin
+              run: npm run build
+
+            - name: Create Stream Deck Plugin package
+              run: npx streamdeck pack ./org.openhab.stream-deck-plugin.sdPlugin
+
+            - name: Upload Release Asset
+              uses: softprops/action-gh-release@v2
+              with:
+                  files: ./*.streamDeckPlugin
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
