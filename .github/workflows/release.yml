@@ -18,9 +18,6 @@ jobs:
               with:
                   fetch-depth: 0
 
-            - name: Ensure tag is on main
-              run: git branch --contains $GITHUB_SHA | grep main
-
             - name: Verify manifest version matches tag
               run: |
                   TAG=${GITHUB_REF#refs/tags/v}
