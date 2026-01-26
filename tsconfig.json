@@ -1,0 +1,34 @@
+{
+	"extends": "@tsconfig/node20/tsconfig.json",
+	"compilerOptions": {
+		"customConditions": [
+			"node"
+		],
+		"module": "ES2022",
+		"moduleResolution": "Bundler",
+		"noImplicitOverride": true,
+		"paths": {
+			"@actions/*": [
+				"./src/actions/*"
+			],
+			"@controllers/*": [
+				"./src/controllers/*"
+			],
+			"@interfaces/*": [
+				"./src/interfaces/*"
+			],
+			"@managers/*": [
+				"./src/managers/*"
+			],
+			"@root/*": [
+				"./src/*"
+			]
+		}
+	},
+	"include": [
+		"src/**/*.ts"
+	],
+	"exclude": [
+		"node_modules"
+	]
+}

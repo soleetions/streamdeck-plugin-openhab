@@ -1,0 +1,176 @@
+{
+	"Name": "OpenHAB",
+	"Version": "0.1.0.0",
+	"Author": "Soleetions",
+	"Actions": [
+		{
+			"Name": "Display state",
+			"UUID": "org.openhab.stream-deck-plugin.display-state",
+			"Icon": "imgs/actions/display-state",
+			"Tooltip": "Displays the state of an item",
+			"PropertyInspectorPath": "ui/display-state.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"TitleAlignment": "middle",
+					"Image": "imgs/actions/display-state"
+				}
+			]
+		},
+		{
+			"Name": "Send value",
+			"UUID": "org.openhab.stream-deck-plugin.send-value",
+			"Icon": "imgs/actions/send-value",
+			"Tooltip": "Sends the configured value to the configured item",
+			"PropertyInspectorPath": "ui/send-value.html",
+			"DisableAutomaticStates": true,
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Name": "Inactive",
+					"Image": "imgs/actions/send-value",
+					"TitleAlignment": "middle",
+					"Title": "",
+					"FontStyle": "Regular"
+				},
+				{
+					"Name": "Active",
+					"Image": "imgs/actions/display-state",
+					"TitleAlignment": "middle",
+					"Title": "",
+					"FontStyle": "Bold",
+					"TitleColor": "#F0F0F0"
+				}
+			]
+		},
+		{
+			"Name": "Switch",
+			"UUID": "org.openhab.stream-deck-plugin.switch",
+			"Tooltip": "Toggles a switch item",
+			"PropertyInspectorPath": "ui/switch.html",
+			"DisableAutomaticStates": true,
+			"Icon": "imgs/actions/switch-on",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Name": "OFF",
+					"Image": "imgs/actions/switch-off",
+					"TitleAlignment": "middle",
+					"Title": "",
+					"FontStyle": "Regular"
+				},
+				{
+					"Name": "ON",
+					"Image": "imgs/actions/switch-on",
+					"TitleAlignment": "middle",
+					"Title": "",
+					"FontStyle": "Bold",
+					"TitleColor": "#F0F0F0"
+				}
+			]
+		},
+		{
+			"Name": "Dimmer",
+			"UUID": "org.openhab.stream-deck-plugin.dimmer",
+			"Tooltip": "Controls a dimmer item",
+			"PropertyInspectorPath": "ui/dimmer.html",
+			"Icon": "imgs/actions/dimmer-on",
+			"DisableAutomaticStates": true,
+			"Controllers": [
+				"Keypad",
+				"Encoder"
+			],
+			"Encoder": {
+				"layout": "$B1",
+				"TriggerDescription": {
+					"Push": "Toggle on/off",
+					"Rotate": "Adjust brightness",
+					"Touch": "Toggle on/off",
+					"LongTouch": "unknown"
+				}
+			},
+			"States": [
+				{
+					"Name": "OFF",
+					"Image": "imgs/actions/dimmer-off",
+					"TitleAlignment": "middle",
+					"Title": "",
+					"FontStyle": "Regular"
+				},
+				{
+					"Name": "ON",
+					"Image": "imgs/actions/dimmer-on",
+					"TitleAlignment": "middle",
+					"Title": "",
+					"FontStyle": "Bold",
+					"TitleColor": "#F0F0F0"
+				}
+			]
+		},
+		{
+			"Name": "Roller Shutter",
+			"UUID": "org.openhab.stream-deck-plugin.roller-shutter",
+			"Tooltip": "Controls a roller shutter item",
+			"PropertyInspectorPath": "ui/rollerShutter.html",
+			"Icon": "imgs/actions/blinds-down",
+			"DisableAutomaticStates": true,
+			"Controllers": [
+				"Keypad",
+				"Encoder"
+			],
+			"Encoder": {
+				"layout": "$B1",
+				"TriggerDescription": {
+					"Rotate": "Adjust position"
+				}
+			},
+			"States": [
+				{
+					"Name": "OFF",
+					"Image": "imgs/actions/blinds-up",
+					"TitleAlignment": "middle",
+					"Title": "",
+					"FontStyle": "Regular"
+				},
+				{
+					"Name": "ON",
+					"Image": "imgs/actions/blinds-down",
+					"TitleAlignment": "middle",
+					"Title": "",
+					"FontStyle": "Bold",
+					"TitleColor": "#F0F0F0"
+				}
+			]
+		}
+	],
+	"Category": "OpenHAB",
+	"CategoryIcon": "imgs/plugin/openHAB-logo",
+	"CodePath": "bin/plugin.js",
+	"Description": "Stream deck plugin to control your smart home via OpenHAB",
+	"Icon": "imgs/plugin/openHAB-logo",
+	"SDKVersion": 3,
+	"Software": {
+		"MinimumVersion": "6.9"
+	},
+	"OS": [
+		{
+			"Platform": "mac",
+			"MinimumVersion": "10.15"
+		},
+		{
+			"Platform": "windows",
+			"MinimumVersion": "10"
+		}
+	],
+	"Nodejs": {
+		"Version": "20",
+		"Debug": "enabled"
+	},
+	"UUID": "org.openhab.stream-deck-plugin"
+}

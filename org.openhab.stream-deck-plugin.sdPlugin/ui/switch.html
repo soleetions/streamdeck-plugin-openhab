@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+
+<head lang="en">
+    <title>Switch Settings</title>
+    <meta charset="utf-8" />
+    <script src="https://sdpi-components.dev/releases/v3/sdpi-components.js"></script>
+    <script src="server-config.js"></script>
+</head>
+
+<body>
+    <div id="server-config-root"></div>
+    <sdpi-item label="Item name">
+        <sdpi-select id="itemNameDropdown" setting="itemName" datasource="openhabItems" placeholder="Select an Item"
+            loading="Fetching items..." hot-reload>
+        </sdpi-select>
+    </sdpi-item>
+    <sdpi-item label="Item type">
+        <sdpi-select setting="itemType" placeholder="Please choose an item type">
+            <option value="OnOff">On/Off</option>
+        </sdpi-select>
+    </sdpi-item>
+</body>
+
+</html>

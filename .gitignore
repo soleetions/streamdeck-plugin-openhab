@@ -1,0 +1,16 @@
+# Node.js
+node_modules/
+
+# Stream Deck files
+*.sdPlugin/bin
+*.sdPlugin/logs
+
+# General
+.DS_Store
+.vscode/
+
+# Script output files
+icons/out/**/**
+
+# Stream Deck package
+*.streamDeckPlugin
