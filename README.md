@@ -1,7 +1,6 @@
 # Elgato Stream Deck openHAB plugin
 
-<img src="./org.openhab.stream-deck-plugin.sdPlugin/imgs/
-plugin/openHAB_workswith.png" alt="Alt-tekst" width="200" style="float: right;">
+<img src="./doc-resources/openHAB_workswith.png" alt="Works with openHAB" width="200" style="float: right;">
 
 StreamDeck openHAB plugin is a Javascript plugin for the Elgato StreamDeck to control your [openHAB](https://www.openhab.org) smart home.
 
