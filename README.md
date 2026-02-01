@@ -38,7 +38,7 @@ Support from the Elgato Plugin marketplace will be added soon hopefully!
 
 After installing the plugin you can assign the functions to your keys or dials by choosing one of the options.
 
-![plugin functions](./screenshots/functions.png)
+![plugin functions](./doc-resources/functions.png)
 
 When configuring the first key (or dial) function, you need to set up the following openHAB server properties:
 
@@ -46,11 +46,11 @@ When configuring the first key (or dial) function, you need to set up the follow
 - server Port
 - API key (see the [openHAB manual](https://www.openhab.org/docs/configuration/apitokens.html#openhab-api-tokens))
 
-![server configuration](./screenshots/server-configuration.png)
+![server configuration](./doc-resources/server-configuration.png)
 
 Next you can select the openHAB item you want to bind to the key.
 
-![function configuration](./screenshots/function-configuration.png)
+![function configuration](./doc-resources/function-configuration.png)
 
 ## Support
 
