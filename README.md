@@ -62,4 +62,4 @@ If you want to support me, feel free to [buy me a coffee](https://buymeacoffee.c
 
 The icons that are used a found on the [Elgato Icons page](https://github.com/elgatosf/icons) and are [MIT-licensed](https://github.com/elgatosf/icons?tab=MIT-1-ov-file)
 
-The name openHAB and the openHAB and "works with openHAB" logo's are trademarks that are owned and protected by the [openHAB foundation](https://www.openhab.org/about/trademark.html)
+The name openHAB and the openHAB and "works with openHAB" logo's are trademarks that are owned and protected by the [openHAB foundation](https://www.openhabfoundation.org/)
