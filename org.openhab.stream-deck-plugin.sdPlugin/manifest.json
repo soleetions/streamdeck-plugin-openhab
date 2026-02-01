@@ -150,10 +150,10 @@
 		}
 	],
 	"Category": "OpenHAB",
-	"CategoryIcon": "imgs/plugin/openHAB-logo",
+	"CategoryIcon": "imgs/openhab-logos/openHAB-logo",
 	"CodePath": "bin/plugin.js",
 	"Description": "Stream deck plugin to control your smart home via OpenHAB",
-	"Icon": "imgs/plugin/openHAB-logo",
+	"Icon": "imgs/openhab-logos/openHAB-logo",
 	"SDKVersion": 3,
 	"Software": {
 		"MinimumVersion": "6.9"
