@@ -1,11 +1,10 @@
-import { action, KeyDownEvent, WillAppearEvent, WillDisappearEvent, DidReceiveSettingsEvent, DialDownEvent, DialRotateEvent, TouchTapEvent, KeyUpEvent } from "@elgato/streamdeck";
-import { JsonValue } from "@elgato/utils";
+import { action, KeyDownEvent, WillAppearEvent, WillDisappearEvent, DidReceiveSettingsEvent, DialDownEvent, DialRotateEvent, TouchTapEvent } from "@elgato/streamdeck";
 import streamDeck from "@elgato/streamdeck";
 import { BaseSettings } from "@interfaces/itemSettings";
 import actionManager from "@managers/actionManager";
 import { DebouncedDialAction } from "./debouncedDialAction";
 
-let logger = streamDeck.logger.createScope("RollerShutterAction");
+const logger = streamDeck.logger.createScope("RollerShutterAction");
 
 /**
  * Action class that controls the position of a roller shutter item.
@@ -31,16 +30,16 @@ export class RollerShutterAction extends DebouncedDialAction<RollerShutterSettin
 		actionManager.updateRollerShutter(ev.action, ev.payload.settings);
 	}
 
-	override async onKeyDown(ev: KeyDownEvent<RollerShutterSettings>): Promise<void> {
+	override onKeyDown(ev: KeyDownEvent<RollerShutterSettings>): void {
 		// Toggle the dimmer state
 		const { settings } = ev.payload;
 		logger.debug(`KeyDown for Roller shutter item name: ${settings.itemName} and state ${settings.state}`);
 		this.pressStart = new Date();
 	}
 
-	override onKeyUp(ev: KeyUpEvent<RollerShutterSettings>): Promise<void> | void {
+	override onKeyUp(): void {
 		if (this.pressStart) {
-			logger.debug(`Key press for ${new Date().getTime() - this.pressStart?.getTime()}ms`);
+			logger.debug(`Key press for ${(new Date().getTime() - this.pressStart.getTime()).toString()}ms`);
 		}
 		this.pressStart = null;
 	}
@@ -64,11 +63,13 @@ export class RollerShutterAction extends DebouncedDialAction<RollerShutterSettin
 
 		ev.action.setFeedback({
 			indicator: feedbackValue,
-			value: `${feedbackValue}%`
-		})
+			value: `${feedbackValue.toString()}%`
+		}).catch((error: unknown) => {
+			logger.error(error);
+		});
 	}
 
-	protected override async onDebouncedRotate(ev: DialRotateEvent<RollerShutterSettings>, totalTicks: number) {
+	protected override onDebouncedRotate(ev: DialRotateEvent<RollerShutterSettings>, totalTicks: number): void {
 		const newState = this.clamp(
 			parseInt(ev.payload.settings.state) + totalTicks
 		).toString();
@@ -86,6 +87,4 @@ export class RollerShutterAction extends DebouncedDialAction<RollerShutterSettin
 /**
  * Settings for {@link RollerShutter}.
  */
-export interface RollerShutterSettings extends BaseSettings {
-	[key: string]: JsonValue;
-};
+export type RollerShutterSettings = BaseSettings;

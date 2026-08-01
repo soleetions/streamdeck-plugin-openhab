@@ -1,7 +1,9 @@
-import { DialAction, KeyAction } from "@elgato/streamdeck";
+import streamDeck, { DialAction, KeyAction } from "@elgato/streamdeck";
 import { Controller } from "@interfaces/controller";
 import { BaseController } from "./baseController";
 import { SwitchSettings } from "@actions/switchAction";
+
+const logger = streamDeck.logger.createScope("SwitchController");
 
 /**
  * A SwitchController action, for use with ActionManager. Tracks the
@@ -62,7 +64,9 @@ export class SwitchController extends BaseController {
     // this.setTitle(this.settings.valueToSend);
 
     if (this.action.isKey()) {
-      this.action.setState(+this.isSwitchedOn());
+      this.action.setState(+this.isSwitchedOn()).catch((error: unknown) => {
+        logger.error(error);
+      });
     }
   }
 

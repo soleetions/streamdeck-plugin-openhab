@@ -1,7 +1,9 @@
-import { DialAction, KeyAction } from "@elgato/streamdeck";
+import streamDeck, { DialAction, KeyAction } from "@elgato/streamdeck";
 import { Controller } from "@interfaces/controller";
 import { BaseController } from "./baseController";
 import { DimmerSettings } from "@actions/dimmerAction";
+
+const logger = streamDeck.logger.createScope("DimmerController");
 
 /**
  * A DimmerController action, for use with ActionManager. Tracks the
@@ -62,12 +64,16 @@ export class DimmerController extends BaseController {
     // this.setTitle(this.settings.valueToSend);
 
     if (this.action.isKey()) {
-      this.action.setState(+this.isSwitchedOn());
+      this.action.setState(+this.isSwitchedOn()).catch((error: unknown) => {
+        logger.error(error);
+      });
     }
     if (this.action.isDial()) {
       this.action.setFeedback({
         indicator: this.settings.state,
         value: `${this.settings.state}%`
+      }).catch((error: unknown) => {
+        logger.error(error);
       });
     }
   }

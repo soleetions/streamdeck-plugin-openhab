@@ -19,7 +19,7 @@ import { isRollerShutterController, RollerShutterController } from "@controllers
 import { RollerShutterSettings } from "@actions/rollerShutterAction";
 import { extractItemName } from "@managers/topicParser";
 
-let logger = streamDeck.logger.createScope("ActionManager");
+const logger = streamDeck.logger.createScope("ActionManager");
 
 /**
  * Singleton class that manages Stream Deck actions
@@ -43,9 +43,7 @@ class ActionManager extends EventEmitter {
    * @returns The instance of ActionManager
    */
   public static getInstance(): ActionManager {
-    if (!ActionManager.instance) {
-      ActionManager.instance = new ActionManager();
-    }
+    ActionManager.instance ??= new ActionManager();
     return ActionManager.instance;
   }
 
@@ -62,7 +60,7 @@ class ActionManager extends EventEmitter {
     this.emit("displayStateAdded", controller);
     this.emit("actionAdded", controller);
 
-    logger.debug(`Amount of actions known: ${this.actions.length}`);
+    logger.debug(`Amount of actions known: ${this.actions.length.toString()}`);
   }
 
   /**
@@ -78,7 +76,7 @@ class ActionManager extends EventEmitter {
     this.emit("sendValueAdded", controller);
     this.emit("actionAdded", controller);
 
-    logger.debug(`Amount of actions known: ${this.actions.length}`);
+    logger.debug(`Amount of actions known: ${this.actions.length.toString()}`);
   }
 
   /**
@@ -94,7 +92,7 @@ class ActionManager extends EventEmitter {
     this.emit("switchAdded", controller);
     this.emit("actionAdded", controller);
 
-    logger.debug(`Amount of actions known: ${this.actions.length}`);
+    logger.debug(`Amount of actions known: ${this.actions.length.toString()}`);
   }
 
   /**
@@ -110,7 +108,7 @@ class ActionManager extends EventEmitter {
     this.emit("dimmerAdded", controller);
     this.emit("actionAdded", controller);
 
-    logger.debug(`Amount of actions known: ${this.actions.length}`);
+    logger.debug(`Amount of actions known: ${this.actions.length.toString()}`);
   }
 
   /**
@@ -126,7 +124,7 @@ class ActionManager extends EventEmitter {
     this.emit("rollerShutterAdded", controller);
     this.emit("actionAdded", controller);
 
-    logger.debug(`Amount of actions known: ${this.actions.length}`);
+    logger.debug(`Amount of actions known: ${this.actions.length.toString()}`);
   }
 
   /**
@@ -252,7 +250,7 @@ class ActionManager extends EventEmitter {
     );
 
     this.emit("removed", this.actions.length);
-    logger.debug(`Amount of actions known: ${this.actions.length}`);
+    logger.debug(`Amount of actions known: ${this.actions.length.toString()}`);
   }
 
   public handleItemState(data: ItemStateChangedEvent) {
@@ -265,13 +263,15 @@ class ActionManager extends EventEmitter {
   public updateItemState(itemName: string, state: string) {
     const controllers: Controller[] = this.findActionByItemName(itemName);
     controllers.forEach(controller => {
-      controller.action.getSettings().then(settings => {
-        logger.debug(`Updating item state for item ${settings.itemName} to value ${state}`);
+      controller.action.getSettings().then(async settings => {
+        logger.debug(`Updating item state for item ${JSON.stringify(settings.itemName)} to value ${state}`);
         settings.state = state;
 
-        controller.action.setSettings(settings);
+        await controller.action.setSettings(settings);
 
         controller.refreshTitle();
+      }).catch((error: unknown) => {
+        logger.error(error);
       })
     })
   }
@@ -373,7 +373,7 @@ class ActionManager extends EventEmitter {
   /**
    * Requests the current state of all items
    */
-  public async getItems(): Promise<String[]> {
+  public async getItems(): Promise<string[]> {
     return await openhabConnectionManager.getItems();
   }
 
@@ -383,7 +383,7 @@ class ActionManager extends EventEmitter {
    * @param command Value to send
    */
   public sendCommand(settings: ItemSettings, command: string | number) {
-    logger.debug(`Sending command ${command} to item ${settings.itemName}, with type ${settings.itemType}`);
+    logger.debug(`Sending command ${command.toString()} to item ${settings.itemName}, with type ${JSON.stringify(settings.itemType)}`);
     openhabConnectionManager.sendCommand(settings.itemName, command);
   }
 

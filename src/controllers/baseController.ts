@@ -1,5 +1,7 @@
-import { DialAction, KeyAction } from "@elgato/streamdeck";
+import streamDeck, { DialAction, KeyAction } from "@elgato/streamdeck";
 import { Controller } from "@interfaces/controller";
+
+const logger = streamDeck.logger.createScope("BaseController");
 
 export const StateColor = {
   NOT_CONNECTED: "white",
@@ -46,7 +48,9 @@ export abstract class BaseController implements Controller {
    * @param title The title to set.
    */
   setTitle(title: string) {
-    this.action.setTitle(title);
+    this.action.setTitle(title).catch((error: unknown) => {
+      logger.error(error);
+    });
   }
 
 }

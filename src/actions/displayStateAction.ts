@@ -1,11 +1,7 @@
-import { action, KeyDownEvent, SingletonAction, WillAppearEvent, WillDisappearEvent, DidReceiveSettingsEvent } from "@elgato/streamdeck";
-import { JsonValue } from "@elgato/utils";
-import streamDeck from "@elgato/streamdeck";
+import { action, KeyDownEvent, WillAppearEvent, WillDisappearEvent, DidReceiveSettingsEvent } from "@elgato/streamdeck";
 import { BaseSettings } from "@interfaces/itemSettings";
 import actionManager from "@managers/actionManager";
 import { OpenhabAction } from "./openhabAction";
-
-let logger = streamDeck.logger.createScope("DisplayStateAction");
 
 /**
  * Action class that displays the state of an item.
@@ -31,7 +27,6 @@ export class DisplayStateAction extends OpenhabAction<DisplayStateSettings> {
 	}
 
 	override onDidReceiveSettings(ev: DidReceiveSettingsEvent<DisplayStateSettings>): Promise<void> | void {
-		// logger.debug(`New settings received: -> ${ev.payload.settings.itemName}`);
 		actionManager.updateDisplayState(ev.action, ev.payload.settings);
 	}
 
@@ -41,7 +36,7 @@ export class DisplayStateAction extends OpenhabAction<DisplayStateSettings> {
 	 * and action information where applicable. In this example, our action will display a counter that increments by one each press. We track the current count on the action's persisted
 	 * settings using `setSettings` and `getSettings`.
 	 */
-	override async onKeyDown(ev: KeyDownEvent<DisplayStateSettings>): Promise<void> {
+	override onKeyDown(ev: KeyDownEvent<DisplayStateSettings>): void {
 		// Update the count from the settings.
 		const { settings } = ev.payload;
 
@@ -53,9 +48,6 @@ export class DisplayStateAction extends OpenhabAction<DisplayStateSettings> {
 /**
  * Settings for {@link DisplayState}.
  */
-export interface DisplayStateSettings extends BaseSettings {
-
-	[key: string]: JsonValue;
-};
+export type DisplayStateSettings = BaseSettings;
 
 

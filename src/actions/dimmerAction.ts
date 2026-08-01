@@ -5,7 +5,7 @@ import { BaseSettings } from "@interfaces/itemSettings";
 import actionManager from "@managers/actionManager";
 import { DebouncedDialAction } from "./debouncedDialAction";
 
-let logger = streamDeck.logger.createScope("DimmerAction");
+const logger = streamDeck.logger.createScope("DimmerAction");
 
 /**
  * Action class that controls the brightness of a dimmer item.
@@ -30,7 +30,7 @@ export class DimmerAction extends DebouncedDialAction<DimmerSettings> {
 		actionManager.updateDimmer(ev.action, ev.payload.settings);
 	}
 
-	override async onKeyDown(ev: KeyDownEvent<DimmerSettings>): Promise<void> {
+	override onKeyDown(ev: KeyDownEvent<DimmerSettings>): void {
 		// Toggle the dimmer state
 		const { settings } = ev.payload;
 		logger.debug(`KeyDown for Dimmer item name: ${settings.itemName} and state ${settings.state}`);
@@ -60,11 +60,13 @@ export class DimmerAction extends DebouncedDialAction<DimmerSettings> {
 
 		ev.action.setFeedback({
 			indicator: feedbackValue,
-			value: `${feedbackValue}%`
-		})
+			value: `${feedbackValue.toString()}%`
+		}).catch((error: unknown) => {
+			logger.error(error);
+		});
 	}
 
-	protected override async onDebouncedRotate(ev: DialRotateEvent<DimmerSettings>, totalTicks: number) {
+	protected override onDebouncedRotate(ev: DialRotateEvent<DimmerSettings>, totalTicks: number): void {
 		const newValue = this.clamp(
 			parseInt(ev.payload.settings.state) + totalTicks
 		).toString();

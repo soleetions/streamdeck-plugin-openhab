@@ -10,6 +10,10 @@ export default tseslint.config(
   {
     languageOptions: { globals: globals.browser },
   },
+  {
+    files: ["eslint.config.js", "rollup.config.mjs", "vitest.config.ts"],
+    languageOptions: { globals: globals.node },
+  },
   prettierConfig,
   pluginJs.configs.recommended,
   {

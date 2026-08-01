@@ -5,7 +5,7 @@ import { BaseSettings } from "@interfaces/itemSettings";
 import actionManager from "@managers/actionManager";
 import { OpenhabAction } from "./openhabAction";
 
-let logger = streamDeck.logger.createScope("SendValueAction");
+const logger = streamDeck.logger.createScope("SendValueAction");
 
 /**
  * Action class that sends a configured value for an item.
@@ -28,7 +28,7 @@ export class SendValueAction extends OpenhabAction<SendValueSettings> {
 		actionManager.updateSendValue(ev.action, ev.payload.settings);
 	}
 
-	override async onKeyDown(ev: KeyDownEvent<SendValueSettings>): Promise<void> {
+	override onKeyDown(ev: KeyDownEvent<SendValueSettings>): void {
 		// Update the count from the settings.
 		const { settings } = ev.payload;
 		logger.info(`Item name: ${settings.itemName} and value ${settings.valueToSend}`);

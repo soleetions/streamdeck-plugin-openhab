@@ -11,7 +11,7 @@ import {
 } from "@interfaces/websocketMessages";
 import { Item } from "@interfaces/restMessages";
 
-let logger = streamDeck.logger.createScope("OpenhabConnectionManager");
+const logger = streamDeck.logger.createScope("OpenhabConnectionManager");
 
 /**
  * Manages the websocket connection to OpenHAB.
@@ -29,13 +29,13 @@ class OpenhabConnectionManager extends EventEmitter {
   private reconnectTimer: NodeJS.Timeout | null = null;
   private reconnectAttempts = 0;
 
-  private apiToken: string = "";
-  private serverHost: string = "";
-  private serverPort: string = "";
-  private websocketUrl: string = "";
-  private restUrl: string = "";
+  private apiToken = "";
+  private serverHost = "";
+  private serverPort = "";
+  private websocketUrl = "";
+  private restUrl = "";
 
-  private items: String[] | null = null;
+  private items: string[] | null = null;
 
   //# Constructor
   private constructor() {
@@ -185,7 +185,7 @@ class OpenhabConnectionManager extends EventEmitter {
     );
     this.reconnectAttempts++;
 
-    logger.debug(`Reconnecting to OpenHAB in ${delay}ms (attempt ${this.reconnectAttempts})`);
+    logger.debug(`Reconnecting to OpenHAB in ${delay.toString()}ms (attempt ${this.reconnectAttempts.toString()})`);
 
     this.reconnectTimer = setTimeout(() => {
       this.reconnectTimer = null;
@@ -220,10 +220,12 @@ class OpenhabConnectionManager extends EventEmitter {
       body: command.toString()
     }).then(response => {
       if (!response.ok) {
-        logger.error(`Failed to send command to item ${itemName}: ${response.status} ${response.statusText}`);
+        logger.error(`Failed to send command to item ${itemName}: ${response.status.toString()} ${response.statusText}`);
       } else {
-        logger.debug(`Command sent to item ${itemName}: ${command}`);
+        logger.debug(`Command sent to item ${itemName}: ${command.toString()}`);
       }
+    }).catch((error: unknown) => {
+      logger.error(`Failed to send command to item ${itemName}:`, error);
     });
   }
 
@@ -247,7 +249,7 @@ class OpenhabConnectionManager extends EventEmitter {
     }
   }
 
-  public async getItems(): Promise<String[]> {
+  public async getItems(): Promise<string[]> {
     if (!this.items) {
       logger.debug("Fetching items from OpenHAB");
       await this.refreshItems();
@@ -284,8 +286,11 @@ class OpenhabConnectionManager extends EventEmitter {
         this.emit("itemStateEvent", {
           type: "ItemStateChangedEvent",
           topic: `openhab/items/${itemName}/statechanged`,
-          payload: `{\"value\":\"${item.state}\"}`
+          payload: `{"value":"${item.state}"}`
         });
+      })
+      .catch((error: unknown) => {
+        logger.error(`Failed to fetch item state for ${itemName}:`, error);
       });
   }
 

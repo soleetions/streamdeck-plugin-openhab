@@ -5,7 +5,7 @@ import { BaseSettings } from "@interfaces/itemSettings";
 import actionManager from "@managers/actionManager";
 import { OpenhabAction } from "./openhabAction";
 
-let logger = streamDeck.logger.createScope("SwitchAction");
+const logger = streamDeck.logger.createScope("SwitchAction");
 
 
 /**
@@ -31,7 +31,7 @@ export class SwitchAction extends OpenhabAction<SwitchSettings> {
 		actionManager.updateSwitch(ev.action, ev.payload.settings);
 	}
 
-	override async onKeyDown(ev: KeyDownEvent<SwitchSettings>): Promise<void> {
+	override onKeyDown(ev: KeyDownEvent<SwitchSettings>): void {
 		// Toggle the switch state
 		const { settings } = ev.payload;
 		logger.debug(`KeyDown for Switch item name: ${settings.itemName} and state ${settings.state}`);

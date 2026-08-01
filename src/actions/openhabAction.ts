@@ -3,7 +3,7 @@ import { JsonValue } from "@elgato/utils";
 import { BaseSettings } from "@interfaces/itemSettings";
 import actionManager from "@managers/actionManager";
 
-let logger = streamDeck.logger.createScope("OpenhabAction");
+const logger = streamDeck.logger.createScope("OpenhabAction");
 
 export class OpenhabAction<T extends BaseSettings> extends SingletonAction<T> {
 
@@ -13,12 +13,14 @@ export class OpenhabAction<T extends BaseSettings> extends SingletonAction<T> {
 
             if (eventType === "openhabItems") {
                 logger.debug("Refreshing items");
-                const items = actionManager.getItems().then(items => {
-                    streamDeck.ui.sendToPropertyInspector({
+                actionManager.getItems().then(items => {
+                    return streamDeck.ui.sendToPropertyInspector({
                         event: eventType,
                         items: items.sort()
-                            .map(item => ({ value: item.toString(), label: item.toString() }))
+                            .map(item => ({ value: item, label: item }))
                     });
+                }).catch((error: unknown) => {
+                    logger.error(error);
                 });
             }
         }

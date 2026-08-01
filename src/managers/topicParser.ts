@@ -4,11 +4,10 @@
  * @param topic full topic value
  * @returns Item name
  */
-export function extractItemName(topic: string): string {
-  const match = topic.match(/openhab\/items\/([^/]+)\/state/);
+const ITEM_NAME_PATTERN = /openhab\/items\/([^/]+)\/state/;
 
-  if (match && match[1]) {
-    return match[1];
-  }
-  return '';
+export function extractItemName(topic: string): string {
+  const match = ITEM_NAME_PATTERN.exec(topic);
+
+  return match?.[1] ?? '';
 }

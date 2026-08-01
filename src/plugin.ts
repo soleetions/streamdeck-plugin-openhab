@@ -8,7 +8,7 @@ import { SwitchAction } from "@actions/switchAction";
 import { DimmerAction } from "@actions/dimmerAction";
 import { RollerShutterAction } from "@actions/rollerShutterAction";
 
-streamDeck.settings.getGlobalSettings();
+void streamDeck.settings.getGlobalSettings();
 
 // We can enable "trace" logging so that all messages between the Stream Deck, and the plugin are recorded. When storing sensitive information
 streamDeck.logger.setLevel("debug");
@@ -29,4 +29,6 @@ streamDeck.settings.onDidReceiveGlobalSettings((settings) => {
 });
 
 // Finally, connect to the Stream Deck.
-streamDeck.connect(); 
+streamDeck.connect().catch((error: unknown) => {
+    streamDeck.logger.error(error);
+});

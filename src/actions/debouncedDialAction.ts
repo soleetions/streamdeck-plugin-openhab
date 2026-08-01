@@ -36,15 +36,17 @@ export abstract class DebouncedDialAction<T extends BaseSettings> extends Openha
             clearTimeout(this.debounceTimer);
         }
 
-        this.debounceTimer = setTimeout(async () => {
-            await this.onDebouncedRotate(ev, this.ticksAccumulator);
+        this.debounceTimer = setTimeout(() => {
+            void (async () => {
+                await this.onDebouncedRotate(ev, this.ticksAccumulator);
 
-            this.debounceTimer = null;
-            this.ticksAccumulator = 0;
+                this.debounceTimer = null;
+                this.ticksAccumulator = 0;
+            })();
         }, this.debounceDelay);
     }
 
-    protected clamp(value: number, min: number = 0, max: number = 100): number {
+    protected clamp(value: number, min = 0, max = 100): number {
         return Math.min(Math.max(value, min), max)
     }
 

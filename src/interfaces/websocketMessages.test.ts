@@ -4,7 +4,6 @@ import {
 	isItemStateChangedEvent,
 	isWebSocketEvent,
 	IncomingMessage,
-	ItemStateChangedEvent,
 	WebSocketEvent,
 } from "./websocketMessages";
 
@@ -14,7 +13,7 @@ describe("isItemStateChangedEvent", () => {
 			type: "ItemStateChangedEvent",
 			topic: "openhab/items/*/statechanged",
 			payload: "{\"value\":\"ON\"}",
-		} as ItemStateChangedEvent;
+		};
 
 		expect(isItemStateChangedEvent(message)).toBe(true);
 	});
@@ -24,7 +23,7 @@ describe("isItemStateChangedEvent", () => {
 			type: "WebSocketEvent",
 			source: "ElgatoStreamDeck",
 			payload: "PONG",
-		} as WebSocketEvent;
+		};
 
 		expect(isItemStateChangedEvent(message)).toBe(false);
 	});
@@ -58,7 +57,7 @@ describe("isWebSocketEvent", () => {
 			type: "WebSocketEvent",
 			source: "ElgatoStreamDeck",
 			payload: "PONG",
-		} as WebSocketEvent;
+		};
 
 		expect(isWebSocketEvent(message)).toBe(true);
 	});
@@ -68,7 +67,7 @@ describe("isWebSocketEvent", () => {
 			type: "ItemStateChangedEvent",
 			topic: "openhab/items/*/statechanged",
 			payload: "{\"value\":\"ON\"}",
-		} as ItemStateChangedEvent;
+		};
 
 		expect(isWebSocketEvent(message)).toBe(false);
 	});

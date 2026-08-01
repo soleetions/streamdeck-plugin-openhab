@@ -3,7 +3,7 @@ import { Controller } from "@interfaces/controller";
 import { BaseController } from "./baseController";
 import { SendValueSettings } from "@actions/sendValueAction";
 
-let logger = streamDeck.logger.createScope("SendValueController");
+const logger = streamDeck.logger.createScope("SendValueController");
 
 /**
  * A SendValueController action, for use with ActionManager. Tracks the
@@ -72,7 +72,9 @@ export class SendValueController extends BaseController {
     this.setTitle(newTitle);
 
     if (this.action.isKey()) {
-      this.action.setState(+this.valuesMatch());
+      this.action.setState(+this.valuesMatch()).catch((error: unknown) => {
+        logger.error(error);
+      });
     }
 
   }

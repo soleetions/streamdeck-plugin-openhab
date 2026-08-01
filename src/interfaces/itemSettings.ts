@@ -14,9 +14,12 @@ export interface BaseSettings {
     latestCommand: string
 }
 
+// DisplayStateSettings and RollerShutterSettings are currently structurally identical to
+// BaseSettings, but are kept as separate constituents since they represent distinct action types.
 export type ItemSettings =
     | DisplayStateSettings
     | SendValueSettings
     | SwitchSettings
     | DimmerSettings
+    // eslint-disable-next-line @typescript-eslint/no-duplicate-type-constituents
     | RollerShutterSettings
