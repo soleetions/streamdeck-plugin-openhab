@@ -65,9 +65,6 @@ export class SendValueController extends BaseController {
 
     logger.debug(`Settings: ${JSON.stringify(this.settings)}`);
     const newTitle = `Send`;
-    // if (ev.action.title !== undefined) {
-    // 	newTitle.concat(`\n${ev.action.title}`);
-    // }		
     newTitle.concat(`\n${this.settings.valueToSend}`);
     if (this.settings.valueType === "Percent") {
       newTitle.concat("%");

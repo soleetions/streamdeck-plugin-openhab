@@ -17,6 +17,7 @@ import { DimmerSettings } from "@actions/dimmerAction";
 import { DimmerController, isDimmerController } from "@controllers/dimmerController";
 import { isRollerShutterController, RollerShutterController } from "@controllers/rollerShutterController";
 import { RollerShutterSettings } from "@actions/rollerShutterAction";
+import { extractItemName } from "@managers/topicParser";
 
 let logger = streamDeck.logger.createScope("ActionManager");
 
@@ -255,7 +256,7 @@ class ActionManager extends EventEmitter {
   }
 
   public handleItemState(data: ItemStateChangedEvent) {
-    const itemName = this.extractItemName(data.topic)
+    const itemName = extractItemName(data.topic)
     const payload = JSON.parse(data.payload) as Payload;
 
     this.updateItemState(itemName, payload.value);
@@ -275,26 +276,8 @@ class ActionManager extends EventEmitter {
     })
   }
 
-  /**
-   * Extracts the item name from the given topic.
-   * 
-   * @param topic full topic value
-   * @returns Item name
-   */
-  private extractItemName(topic: string): string {
-    const match = topic.match(/openhab\/items\/([^/]+)\/state/);
-
-    if (match && match[1]) {
-      return match[1];
-    }
-    return '';
-  }
-
   private findActionByItemName(itemName: string): Controller[] {
-    const controllersForItemName: Controller[] = this.actions.filter((entry) => entry.itemName == itemName);
-
-    // logger.debug(`${controllersForItemName.length} Actions found for itemName '${itemName}'`);
-    return controllersForItemName;
+    return this.actions.filter((entry) => entry.itemName == itemName);
   }
 
   /**
@@ -401,15 +384,8 @@ class ActionManager extends EventEmitter {
    */
   public sendCommand(settings: ItemSettings, command: string | number) {
     logger.debug(`Sending command ${command} to item ${settings.itemName}, with type ${settings.itemType}`);
-    // openhabConnectionManager.sendMessage({
-    //   type: "ItemCommandEvent",
-    //   topic: `openhab/items/${settings.itemName}/command`,
-    //   payload: `{\"value\": \"${command}\"}`,
-    //   source: "ElgatoStreamDeck"
-    // })
     openhabConnectionManager.sendCommand(settings.itemName, command);
   }
-  // payload: `{\"type\":\"${settings.itemType}\", \"value\": \"${command}\"}`,
 
 }
 

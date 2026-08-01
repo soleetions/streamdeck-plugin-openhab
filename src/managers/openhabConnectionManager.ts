@@ -23,6 +23,12 @@ class OpenhabConnectionManager extends EventEmitter {
   private heartbeatInterval = 1000 * 5; // 5 seconds
 
   private heartbeatTimer: NodeJS.Timeout | null = null;
+
+  private reconnectBaseDelay = 1000 * 1; // 1 second
+  private reconnectMaxDelay = 1000 * 30; // 30 seconds
+  private reconnectTimer: NodeJS.Timeout | null = null;
+  private reconnectAttempts = 0;
+
   private apiToken: string = "";
   private serverHost: string = "";
   private serverPort: string = "";
@@ -96,21 +102,30 @@ class OpenhabConnectionManager extends EventEmitter {
       this.heartbeatTimer = null;
     }
 
-    this.socket = new WebSocket(this.websocketUrl);
+    const socket = new WebSocket(this.websocketUrl);
+    this.socket = socket;
 
-    this.socket.on("open", () => {
+    socket.on("open", () => {
       logger.debug("WebSocket connection established.");
       this.emit("connected");
+
+      this.reconnectAttempts = 0;
 
       this.sendMessageFilter();
 
       this.scheduleHeartbeat();
     });
 
-    this.socket.on("close", () => {
+    socket.on("close", () => {
       logger.debug("WebSocket connection closed");
 
       this.emit("disconnected");
+
+      // Only reconnect if this socket is still the active one; a stale
+      // socket from a superseded connect()/disconnect() should not trigger one.
+      if (this.socket === socket) {
+        this.scheduleReconnect();
+      }
     });
 
     this.socket.on("error", (err: Error & { code: string }) => {
@@ -155,6 +170,29 @@ class OpenhabConnectionManager extends EventEmitter {
     }, this.heartbeatInterval);
   }
 
+  /**
+   * Schedules a reconnect attempt to the OpenHAB server, using an exponential
+   * backoff based on the number of consecutive failed attempts.
+   */
+  private scheduleReconnect(): void {
+    if (this.reconnectTimer) {
+      return;
+    }
+
+    const delay = Math.min(
+      this.reconnectBaseDelay * Math.pow(2, this.reconnectAttempts),
+      this.reconnectMaxDelay
+    );
+    this.reconnectAttempts++;
+
+    logger.debug(`Reconnecting to OpenHAB in ${delay}ms (attempt ${this.reconnectAttempts})`);
+
+    this.reconnectTimer = setTimeout(() => {
+      this.reconnectTimer = null;
+      this.connect();
+    }, delay);
+  }
+
   private sendMessageFilter() {
     this.sendMessage({
       type: "WebSocketEvent",
@@ -193,6 +231,11 @@ class OpenhabConnectionManager extends EventEmitter {
    * Disconnects from a OpenHAB instance.
    */
   public disconnect(): void {
+    if (this.reconnectTimer) {
+      clearTimeout(this.reconnectTimer);
+      this.reconnectTimer = null;
+    }
+
     if (this.socket) {
       this.socket.close();
       this.socket = null;
