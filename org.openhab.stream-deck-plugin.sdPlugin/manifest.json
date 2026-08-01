@@ -1,5 +1,5 @@
 {
-	"Name": "OpenHAB",
+	"Name": "openHAB",
 	"Version": "0.1.0.0",
 	"Author": "Soleetions",
 	"Actions": [
@@ -149,10 +149,10 @@
 			]
 		}
 	],
-	"Category": "OpenHAB",
+	"Category": "openHAB",
 	"CategoryIcon": "imgs/openhab-logos/openHAB-logo",
 	"CodePath": "bin/plugin.js",
-	"Description": "Stream deck plugin to control your smart home via OpenHAB",
+	"Description": "Stream deck plugin to control your smart home via openHAB",
 	"Icon": "imgs/openhab-logos/openHAB-logo",
 	"SDKVersion": 3,
 	"Software": {
