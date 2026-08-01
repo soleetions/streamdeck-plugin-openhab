@@ -1,2 +1,0 @@
-  private apiToken = "oh.ElgateStreamDeck.xjoBLJ6qUxRAYwxfnaqC9NJOnMPnz6Bgu314dqDKY66lNHjtsiHZNd7LT0O76XRCIHXweYbUOvrKYTvy9LcOA";
-  private baseUrl = "192.168.99.6:8081";
