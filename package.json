@@ -3,7 +3,8 @@
         "build": "rollup -c",
         "watch": "rollup -c -w --watch.onEnd=\"streamdeck restart org.openhab.stream-deck-plugin\"",
         "test": "vitest run",
-        "test:watch": "vitest"
+        "test:watch": "vitest",
+        "lint": "eslint ."
     },
     "type": "module",
     "devDependencies": {
