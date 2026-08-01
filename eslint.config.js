@@ -3,15 +3,21 @@ import globals from "globals";
 import tseslint from "typescript-eslint";
 import prettierConfig from "eslint-config-prettier";
 
-export default [
+export default tseslint.config(
+  {
+    ignores: ["org.openhab.stream-deck-plugin.sdPlugin/bin/**"],
+  },
   {
     languageOptions: { globals: globals.browser },
   },
   prettierConfig,
   pluginJs.configs.recommended,
-  ...tseslint.configs.strictTypeChecked,
-  ...tseslint.configs.stylisticTypeChecked,
   {
+    files: ["src/**/*.ts"],
+    extends: [
+      ...tseslint.configs.strictTypeChecked,
+      ...tseslint.configs.stylisticTypeChecked,
+    ],
     languageOptions: {
       parserOptions: {
         project: true,
@@ -19,4 +25,4 @@ export default [
       },
     },
   },
-];
+);
