@@ -43,6 +43,11 @@ export abstract class BaseController implements Controller {
   abstract refreshTitle(): void;
 
   /**
+   * Updates the cached state and refreshes the action's title/feedback.
+   */
+  abstract setState(state: string): void;
+
+  /**
    * Sets the title on the tracked action, catching any exceptions
    * that might occur.
    * @param title The title to set.

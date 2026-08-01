@@ -81,6 +81,14 @@ export class RollerShutterController extends BaseController {
   isSwitchedOn() {
     return parseInt(this.settings.state) > 0;
   }
+
+  /**
+   * Updates the cached state and refreshes the action's title/feedback.
+   */
+  setState(state: string) {
+    this.settings.state = state;
+    this.refreshTitle();
+  }
 }
 
 /**

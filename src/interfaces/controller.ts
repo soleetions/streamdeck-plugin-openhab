@@ -8,4 +8,5 @@ export interface Controller {
   action: KeyAction | DialAction;
   itemName: string;
   refreshTitle(): void;
+  setState(state: string): void;
 }

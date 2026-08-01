@@ -62,6 +62,14 @@ export class DisplayStateController extends BaseController {
   public refreshTitle() {
     this.setTitle(this.settings.state);
   }
+
+  /**
+   * Updates the cached state and refreshes the action's title/feedback.
+   */
+  setState(state: string) {
+    this.settings.state = state;
+    this.refreshTitle();
+  }
 }
 
 /**

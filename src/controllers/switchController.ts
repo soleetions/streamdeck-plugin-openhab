@@ -73,6 +73,14 @@ export class SwitchController extends BaseController {
   isSwitchedOn() {
     return this.settings.state === "ON";
   }
+
+  /**
+   * Updates the cached state and refreshes the action's title/feedback.
+   */
+  setState(state: string) {
+    this.settings.state = state;
+    this.refreshTitle();
+  }
 }
 
 /**

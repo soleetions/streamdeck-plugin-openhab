@@ -269,7 +269,7 @@ class ActionManager extends EventEmitter {
 
         await controller.action.setSettings(settings);
 
-        controller.refreshTitle();
+        controller.setState(state);
       }).catch((error: unknown) => {
         logger.error(error);
       })
