@@ -3,6 +3,7 @@
         "build": "rollup -c",
         "watch": "rollup -c -w --watch.onEnd=\"streamdeck restart org.openhab.stream-deck-plugin\"",
         "test": "vitest run",
+        "test:coverage": "vitest run --coverage",
         "test:watch": "vitest",
         "lint": "eslint ."
     },
@@ -17,6 +18,7 @@
         "@tsconfig/node20": "^20.1.2",
         "@types/node": "~20.19.0",
         "@types/ws": "^8.5.12",
+        "@vitest/coverage-v8": "^4.1.10",
         "eslint": "^10.8.0",
         "eslint-config-prettier": "^10.1.8",
         "globals": "^17.8.0",
