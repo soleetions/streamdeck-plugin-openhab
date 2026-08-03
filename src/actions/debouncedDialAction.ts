@@ -5,8 +5,8 @@ import { OpenhabAction } from "./openhabAction";
 export type PressAction<T extends BaseSettings> = KeyAction<T> | DialAction<T>;
 
 export abstract class DebouncedDialAction<T extends BaseSettings> extends OpenhabAction<T> {
-    private ticksAccumulator = 0;
-    private debounceTimer: NodeJS.Timeout | null = null;
+    private ticksAccumulators = new Map<string, number>();
+    private debounceTimers = new Map<string, NodeJS.Timeout>();
     private pressStarts = new Map<string, Date>();
 
     private readonly debounceDelay: number = 800;
@@ -29,25 +29,33 @@ export abstract class DebouncedDialAction<T extends BaseSettings> extends Openha
     ): void;
 
     /**
-     * Method handles all the debounce logic
+     * Method handles all the debounce logic. Keyed by the rotated action's
+     * `id`, since a `SingletonAction` instance is shared by every physical
+     * dial of its type on the Stream Deck.
      */
     protected handleDialRotate(ev: DialRotateEvent<T>): void {
+        const actionId = ev.action.id;
+        const accumulatedTicks = (this.ticksAccumulators.get(actionId) ?? 0) + ev.payload.ticks;
+        this.ticksAccumulators.set(actionId, accumulatedTicks);
 
-        this.ticksAccumulator += ev.payload.ticks;
-        this.onIntermediateRotate?.(ev, this.ticksAccumulator);
+        this.onIntermediateRotate?.(ev, accumulatedTicks);
 
-        if (this.debounceTimer !== null) {
-            clearTimeout(this.debounceTimer);
+        const existingTimer = this.debounceTimers.get(actionId);
+        if (existingTimer !== undefined) {
+            clearTimeout(existingTimer);
         }
 
-        this.debounceTimer = setTimeout(() => {
+        const timer = setTimeout(() => {
             void (async () => {
-                await this.onDebouncedRotate(ev, this.ticksAccumulator);
+                const totalTicks = this.ticksAccumulators.get(actionId) ?? 0;
+                await this.onDebouncedRotate(ev, totalTicks);
 
-                this.debounceTimer = null;
-                this.ticksAccumulator = 0;
+                this.debounceTimers.delete(actionId);
+                this.ticksAccumulators.delete(actionId);
             })();
         }, this.debounceDelay);
+
+        this.debounceTimers.set(actionId, timer);
     }
 
     protected clamp(value: number, min = 0, max = 100): number {
