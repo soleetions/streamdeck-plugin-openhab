@@ -84,15 +84,15 @@ export class RollerShutterAction extends DebouncedDialAction<RollerShutterSettin
 	}
 
 	protected override onLongPress(action: PressAction<RollerShutterSettings>, settings: RollerShutterSettings): void {
-		const { toSend, toPersist } = nextShutterDirection(settings.latestCommand);
-		settings.latestCommand = toPersist;
+		const direction = nextShutterDirection(settings.latestCommand);
+		settings.latestCommand = direction;
 
 		action.setSettings(settings).catch((error: unknown) => {
 			logger.error(error);
 		});
 
-		logger.debug(`Long press for Roller shutter item name: ${settings.itemName}, sending ${toSend}`);
-		actionManager.sendCommand(settings, toSend);
+		logger.debug(`Long press for Roller shutter item name: ${settings.itemName}, sending ${direction}`);
+		actionManager.sendCommand(settings, direction);
 	}
 
 }

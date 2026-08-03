@@ -2,20 +2,20 @@ import { describe, expect, it } from "vitest";
 import { nextShutterDirection } from "./shutterDirection";
 
 describe("nextShutterDirection", () => {
-	it("defaults to sending and persisting UP when no direction has been sent yet", () => {
-		expect(nextShutterDirection(undefined)).toEqual({ toSend: "UP", toPersist: "UP" });
+	it("defaults to UP when no direction has been sent yet", () => {
+		expect(nextShutterDirection(undefined)).toBe("UP");
 	});
 
-	it("defaults to sending and persisting UP when the persisted value is an empty string", () => {
-		expect(nextShutterDirection("")).toEqual({ toSend: "UP", toPersist: "UP" });
+	it("defaults to UP when the persisted value is an empty string", () => {
+		expect(nextShutterDirection("")).toBe("UP");
 	});
 
-	it("sends and persists DOWN when the last sent direction was UP", () => {
-		expect(nextShutterDirection("UP")).toEqual({ toSend: "DOWN", toPersist: "DOWN" });
+	it("returns DOWN when the last sent direction was UP", () => {
+		expect(nextShutterDirection("UP")).toBe("DOWN");
 	});
 
-	it("sends and persists UP when the last sent direction was DOWN", () => {
-		expect(nextShutterDirection("DOWN")).toEqual({ toSend: "UP", toPersist: "UP" });
+	it("returns UP when the last sent direction was DOWN", () => {
+		expect(nextShutterDirection("DOWN")).toBe("UP");
 	});
 
 	it("alternates across repeated calls, matching a series of long presses", () => {
@@ -23,9 +23,9 @@ describe("nextShutterDirection", () => {
 		const sentDirections: string[] = [];
 
 		for (let i = 0; i < 4; i++) {
-			const result = nextShutterDirection(latest);
-			sentDirections.push(result.toSend);
-			latest = result.toPersist;
+			const direction = nextShutterDirection(latest);
+			sentDirections.push(direction);
+			latest = direction;
 		}
 
 		expect(sentDirections).toEqual(["UP", "DOWN", "UP", "DOWN"]);

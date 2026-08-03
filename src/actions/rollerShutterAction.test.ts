@@ -4,7 +4,7 @@ import { RollerShutterAction, RollerShutterSettings } from "./rollerShutterActio
 import actionManager from "@managers/actionManager";
 import type { KeyAction, KeyDownEvent, KeyUpEvent, DialDownEvent, DialUpEvent } from "@elgato/streamdeck";
 
-interface FakeAction {
+interface TestAction {
 	id: string;
 	setSettings: ReturnType<typeof vi.fn>;
 }
@@ -13,30 +13,30 @@ function createSettings(latestCommand = ""): RollerShutterSettings {
 	return { title: "Blinds", itemName: "Blinds_1", state: "50", latestCommand };
 }
 
-function createFakeAction(id: string): FakeAction {
+function createTestAction(id: string): TestAction {
 	return {
 		id,
 		setSettings: vi.fn(() => Promise.resolve())
 	};
 }
 
-function asKeyAction(action: FakeAction): KeyAction<RollerShutterSettings> {
+function asKeyAction(action: TestAction): KeyAction<RollerShutterSettings> {
 	return action as unknown as KeyAction<RollerShutterSettings>;
 }
 
-function createKeyDownEvent(action: FakeAction): KeyDownEvent<RollerShutterSettings> {
+function createKeyDownEvent(action: TestAction): KeyDownEvent<RollerShutterSettings> {
 	return { action: asKeyAction(action) } as unknown as KeyDownEvent<RollerShutterSettings>;
 }
 
-function createKeyUpEvent(action: FakeAction, settings: RollerShutterSettings): KeyUpEvent<RollerShutterSettings> {
+function createKeyUpEvent(action: TestAction, settings: RollerShutterSettings): KeyUpEvent<RollerShutterSettings> {
 	return { action: asKeyAction(action), payload: { settings } } as unknown as KeyUpEvent<RollerShutterSettings>;
 }
 
-function createDialDownEvent(action: FakeAction): DialDownEvent<RollerShutterSettings> {
+function createDialDownEvent(action: TestAction): DialDownEvent<RollerShutterSettings> {
 	return { action: asKeyAction(action) } as unknown as DialDownEvent<RollerShutterSettings>;
 }
 
-function createDialUpEvent(action: FakeAction, settings: RollerShutterSettings): DialUpEvent<RollerShutterSettings> {
+function createDialUpEvent(action: TestAction, settings: RollerShutterSettings): DialUpEvent<RollerShutterSettings> {
 	return { action: asKeyAction(action), payload: { settings } } as unknown as DialUpEvent<RollerShutterSettings>;
 }
 
@@ -56,7 +56,7 @@ describe("RollerShutterAction press handling", () => {
 
 	it("sends STOP on a short button press, without touching settings", () => {
 		const rollerShutter = new RollerShutterAction();
-		const action = createFakeAction("action-1");
+		const action = createTestAction("action-1");
 		const settings = createSettings();
 
 		rollerShutter.onKeyDown(createKeyDownEvent(action));
@@ -69,7 +69,7 @@ describe("RollerShutterAction press handling", () => {
 
 	it("sends and persists UP on a long button press, when nothing was sent before", () => {
 		const rollerShutter = new RollerShutterAction();
-		const action = createFakeAction("action-1");
+		const action = createTestAction("action-1");
 		const settings = createSettings();
 
 		rollerShutter.onKeyDown(createKeyDownEvent(action));
@@ -82,7 +82,7 @@ describe("RollerShutterAction press handling", () => {
 
 	it("sends and persists the opposite direction on a long button press, when UP was sent last", () => {
 		const rollerShutter = new RollerShutterAction();
-		const action = createFakeAction("action-1");
+		const action = createTestAction("action-1");
 		const settings = createSettings("UP");
 
 		rollerShutter.onKeyDown(createKeyDownEvent(action));
@@ -94,7 +94,7 @@ describe("RollerShutterAction press handling", () => {
 
 	it("sends STOP on a short dial push, without touching settings", () => {
 		const rollerShutter = new RollerShutterAction();
-		const action = createFakeAction("action-1");
+		const action = createTestAction("action-1");
 		const settings = createSettings();
 
 		rollerShutter.onDialDown(createDialDownEvent(action));
@@ -107,7 +107,7 @@ describe("RollerShutterAction press handling", () => {
 
 	it("sends and persists the direction on a long dial push", () => {
 		const rollerShutter = new RollerShutterAction();
-		const action = createFakeAction("action-1");
+		const action = createTestAction("action-1");
 		const settings = createSettings();
 
 		rollerShutter.onDialDown(createDialDownEvent(action));
@@ -120,8 +120,8 @@ describe("RollerShutterAction press handling", () => {
 
 	it("tracks presses on two different instances independently", () => {
 		const rollerShutter = new RollerShutterAction();
-		const actionA = createFakeAction("action-a");
-		const actionB = createFakeAction("action-b");
+		const actionA = createTestAction("action-a");
+		const actionB = createTestAction("action-b");
 		const settingsA = createSettings();
 		const settingsB = createSettings();
 
