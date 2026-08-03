@@ -19,5 +19,5 @@ icons/out/**/**
 logs/
 
 # Local scratch (design docs, plans, subagent workspace)
-docs/
+docs/superpowers/
 .superpowers/

@@ -1,16 +1,17 @@
-import { action, KeyUpEvent, WillAppearEvent, WillDisappearEvent, DidReceiveSettingsEvent, DialUpEvent, DialRotateEvent, TouchTapEvent } from "@elgato/streamdeck";
+import { action, KeyDownEvent, KeyUpEvent, WillAppearEvent, WillDisappearEvent, DidReceiveSettingsEvent, DialDownEvent, DialUpEvent, DialRotateEvent, TouchTapEvent } from "@elgato/streamdeck";
 import streamDeck from "@elgato/streamdeck";
 import { BaseSettings } from "@interfaces/itemSettings";
 import actionManager from "@managers/actionManager";
-import { DebouncedDialAction } from "./debouncedDialAction";
+import { DebouncedDialAction, PressAction } from "./debouncedDialAction";
 
 const logger = streamDeck.logger.createScope("RollerShutterAction");
 
 /**
- * Action class that controls the position of a roller shutter item.
- * 
- * On button press, the state of the item will be toggled
- * On dial turn, the position will be increased or decreased.
+ * Action class that controls a roller shutter item.
+ *
+ * Dial rotation sets an exact position (percentage). Button push and dial
+ * push send STOP on a short press (<500ms), or the next UP/DOWN direction
+ * on a long press (>=500ms), alternating each time.
  */
 @action({ UUID: "org.openhab.stream-deck-plugin.roller-shutter" })
 export class RollerShutterAction extends DebouncedDialAction<RollerShutterSettings> {
@@ -28,20 +29,20 @@ export class RollerShutterAction extends DebouncedDialAction<RollerShutterSettin
 		actionManager.updateRollerShutter(ev.action, ev.payload.settings);
 	}
 
-	override onKeyDown(): void {
-		this.handlePressDown();
+	override onKeyDown(ev: KeyDownEvent<RollerShutterSettings>): void {
+		this.handlePressDown(ev.action);
 	}
 
 	override onKeyUp(ev: KeyUpEvent<RollerShutterSettings>): void {
-		this.handlePressUp(ev.payload.settings);
+		this.handlePressUp(ev.action, ev.payload.settings);
 	}
 
-	override onDialDown(): void {
-		this.handlePressDown();
+	override onDialDown(ev: DialDownEvent<RollerShutterSettings>): void {
+		this.handlePressDown(ev.action);
 	}
 
 	override onDialUp(ev: DialUpEvent<RollerShutterSettings>): void {
-		this.handlePressUp(ev.payload.settings);
+		this.handlePressUp(ev.action, ev.payload.settings);
 	}
 
 	override onTouchTap(ev: TouchTapEvent<RollerShutterSettings>): Promise<void> | void {
@@ -76,14 +77,14 @@ export class RollerShutterAction extends DebouncedDialAction<RollerShutterSettin
 		actionManager.sendCommand(ev.payload.settings, newState);
 	}
 
-	protected override onShortPress(settings: RollerShutterSettings): void {
+	protected override onShortPress(action: PressAction<RollerShutterSettings>, settings: RollerShutterSettings): void {
 		logger.debug(`Short press for Roller shutter item name: ${settings.itemName}, sending STOP`);
 		actionManager.sendCommand(settings, "STOP");
 	}
 
-	protected override onLongPress(settings: RollerShutterSettings): void {
+	protected override onLongPress(action: PressAction<RollerShutterSettings>, settings: RollerShutterSettings): void {
 		logger.debug(`Long press for Roller shutter item name: ${settings.itemName}, sending direction command`);
-		actionManager.sendShutterDirectionCommand(settings.itemName);
+		actionManager.sendShutterDirectionCommand(action);
 	}
 
 }

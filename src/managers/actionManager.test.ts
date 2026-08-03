@@ -46,7 +46,7 @@ describe("ActionManager.sendShutterDirectionCommand", () => {
 		const action = createFakeAction("action-1", settings);
 		actionManager.addRollerShutter(action, settings);
 
-		actionManager.sendShutterDirectionCommand("Blinds_1");
+		actionManager.sendShutterDirectionCommand(action);
 		await flushMicrotasks();
 
 		expect(sendCommandSpy).toHaveBeenCalledWith(
@@ -60,16 +60,16 @@ describe("ActionManager.sendShutterDirectionCommand", () => {
 		const action = createFakeAction("action-2", settings);
 		actionManager.addRollerShutter(action, settings);
 
-		actionManager.sendShutterDirectionCommand("Blinds_2");
+		actionManager.sendShutterDirectionCommand(action);
 		await flushMicrotasks();
-		actionManager.sendShutterDirectionCommand("Blinds_2");
+		actionManager.sendShutterDirectionCommand(action);
 		await flushMicrotasks();
 
 		expect(sendCommandSpy).toHaveBeenNthCalledWith(1, expect.objectContaining({ itemName: "Blinds_2" }), "UP");
 		expect(sendCommandSpy).toHaveBeenNthCalledWith(2, expect.objectContaining({ itemName: "Blinds_2" }), "DOWN");
 	});
 
-	it("updates each bound instance independently when multiple controllers share an item", async () => {
+	it("only affects the pressed instance when multiple controllers share an item", async () => {
 		const settingsA: RollerShutterSettings = { title: "A", itemName: "Blinds_3", state: "50", latestCommand: "UP" };
 		const settingsB: RollerShutterSettings = { title: "B", itemName: "Blinds_3", state: "50", latestCommand: "DOWN" };
 		const actionA = createFakeAction("action-3a", settingsA);
@@ -77,10 +77,23 @@ describe("ActionManager.sendShutterDirectionCommand", () => {
 		actionManager.addRollerShutter(actionA, settingsA);
 		actionManager.addRollerShutter(actionB, settingsB);
 
-		actionManager.sendShutterDirectionCommand("Blinds_3");
+		actionManager.sendShutterDirectionCommand(actionA);
 		await flushMicrotasks();
 
+		expect(sendCommandSpy).toHaveBeenCalledTimes(1);
 		expect(sendCommandSpy).toHaveBeenCalledWith(expect.objectContaining({ itemName: "Blinds_3", latestCommand: "DOWN" }), "UP");
-		expect(sendCommandSpy).toHaveBeenCalledWith(expect.objectContaining({ itemName: "Blinds_3", latestCommand: "UP" }), "DOWN");
+
+		const settingsAfterB = await actionB.getSettings();
+		expect(settingsAfterB.latestCommand).toBe("DOWN");
+	});
+
+	it("does nothing when no controller is registered for the pressed action", async () => {
+		const settings: RollerShutterSettings = { title: "Orphan", itemName: "Blinds_4", state: "50", latestCommand: "" };
+		const action = createFakeAction("action-4", settings);
+
+		actionManager.sendShutterDirectionCommand(action);
+		await flushMicrotasks();
+
+		expect(sendCommandSpy).not.toHaveBeenCalled();
 	});
 });

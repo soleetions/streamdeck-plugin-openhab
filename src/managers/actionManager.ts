@@ -389,26 +389,32 @@ class ActionManager extends EventEmitter {
   }
 
   /**
-   * Sends the next UP/DOWN direction command for a roller shutter item, and
-   * persists the direction to send on the following long press.
-   * @param itemName Item name
+   * Sends the next UP/DOWN direction command for the roller shutter
+   * instance that was pressed, and persists the direction to send on that
+   * instance's following long press. Only the matching controller is
+   * affected — other Stream Deck instances bound to the same openHAB item
+   * are left untouched, so their persisted direction cannot diverge into
+   * conflicting commands.
+   * @param action The Stream Deck action instance that was long-pressed
    */
-  public sendShutterDirectionCommand(itemName: string): void {
-    const controllers = this.getRollerShutterControllers().filter(
-      (controller) => controller.itemName === itemName
+  public sendShutterDirectionCommand(action: KeyAction<RollerShutterSettings> | DialAction<RollerShutterSettings>): void {
+    const controller = this.getRollerShutterControllers().find(
+      (entry) => entry.action.id === action.id
     );
 
-    controllers.forEach(controller => {
-      controller.action.getSettings<RollerShutterSettings>().then(async settings => {
-        const { toSend, toPersist } = nextShutterDirection(settings.latestCommand);
+    if (!controller) {
+      return;
+    }
 
-        settings.latestCommand = toPersist;
-        await controller.action.setSettings(settings);
+    controller.action.getSettings<RollerShutterSettings>().then(async settings => {
+      const { toSend, toPersist } = nextShutterDirection(settings.latestCommand);
 
-        this.sendCommand(settings, toSend);
-      }).catch((error: unknown) => {
-        logger.error(error);
-      });
+      settings.latestCommand = toPersist;
+      await controller.action.setSettings(settings);
+
+      this.sendCommand(settings, toSend);
+    }).catch((error: unknown) => {
+      logger.error(error);
     });
   }
 
