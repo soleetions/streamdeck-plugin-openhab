@@ -13,4 +13,4 @@ node_modules/
 icons/out/**/**
 
 # Stream Deck package
-*.streamDeckPlugin
+*.streamDeckPlugin.superpowers/
