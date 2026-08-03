@@ -13,4 +13,11 @@ node_modules/
 icons/out/**/**
 
 # Stream Deck package
-*.streamDeckPlugin.superpowers/
+*.streamDeckPlugin
+
+# Build/test logs
+logs/
+
+# Local scratch (design docs, plans, subagent workspace)
+docs/
+.superpowers/
