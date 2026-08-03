@@ -2,14 +2,15 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { vi } from "vitest";
 import { DebouncedDialAction, PressAction } from "./debouncedDialAction";
 import { BaseSettings } from "@interfaces/itemSettings";
-import type { KeyAction } from "@elgato/streamdeck";
+import type { DialRotateEvent, KeyAction } from "@elgato/streamdeck";
 
 class TestDialAction extends DebouncedDialAction<BaseSettings> {
 	public shortPressCalls: { actionId: string; settings: BaseSettings }[] = [];
 	public longPressCalls: { actionId: string; settings: BaseSettings }[] = [];
+	public debouncedRotateCalls: { actionId: string; totalTicks: number }[] = [];
 
-	protected override onDebouncedRotate(): void {
-		// Not exercised by these tests.
+	protected override onDebouncedRotate(ev: DialRotateEvent<BaseSettings>, totalTicks: number): void {
+		this.debouncedRotateCalls.push({ actionId: ev.action.id, totalTicks });
 	}
 
 	protected override onShortPress(action: PressAction<BaseSettings>, settings: BaseSettings): void {
@@ -27,6 +28,10 @@ class TestDialAction extends DebouncedDialAction<BaseSettings> {
 	public triggerPressUp(action: PressAction<BaseSettings>, settings: BaseSettings): void {
 		this.handlePressUp(action, settings);
 	}
+
+	public triggerDialRotate(ev: DialRotateEvent<BaseSettings>): void {
+		this.handleDialRotate(ev);
+	}
 }
 
 function createSettings(): BaseSettings {
@@ -35,6 +40,13 @@ function createSettings(): BaseSettings {
 
 function createFakeAction(id: string): PressAction<BaseSettings> {
 	return { id } as unknown as KeyAction<BaseSettings>;
+}
+
+function createRotateEvent(id: string, ticks: number): DialRotateEvent<BaseSettings> {
+	return {
+		action: createFakeAction(id),
+		payload: { ticks, settings: createSettings() }
+	} as unknown as DialRotateEvent<BaseSettings>;
 }
 
 describe("DebouncedDialAction press handling", () => {
@@ -115,5 +127,40 @@ describe("DebouncedDialAction press handling", () => {
 
 		expect(action.shortPressCalls).toEqual([{ actionId: "action-a", settings: settingsA }]);
 		expect(action.longPressCalls).toEqual([{ actionId: "action-b", settings: settingsB }]);
+	});
+});
+
+describe("DebouncedDialAction dial rotate handling", () => {
+	beforeEach(() => {
+		vi.useFakeTimers();
+		vi.setSystemTime(new Date("2026-01-01T00:00:00.000Z"));
+	});
+
+	afterEach(() => {
+		vi.useRealTimers();
+	});
+
+	it("debounces repeated rotation of the same instance into a single call with the total ticks", () => {
+		const action = new TestDialAction();
+
+		action.triggerDialRotate(createRotateEvent("action-1", 2));
+		action.triggerDialRotate(createRotateEvent("action-1", 3));
+		vi.advanceTimersByTime(800);
+
+		expect(action.debouncedRotateCalls).toEqual([{ actionId: "action-1", totalTicks: 5 }]);
+	});
+
+	it("tracks overlapping rotation on different action instances independently", () => {
+		const action = new TestDialAction();
+
+		action.triggerDialRotate(createRotateEvent("action-a", 2));
+		vi.setSystemTime(new Date("2026-01-01T00:00:00.400Z"));
+		action.triggerDialRotate(createRotateEvent("action-b", 10));
+
+		vi.advanceTimersByTime(800);
+
+		expect(action.debouncedRotateCalls).toContainEqual({ actionId: "action-a", totalTicks: 2 });
+		expect(action.debouncedRotateCalls).toContainEqual({ actionId: "action-b", totalTicks: 10 });
+		expect(action.debouncedRotateCalls).toHaveLength(2);
 	});
 });
