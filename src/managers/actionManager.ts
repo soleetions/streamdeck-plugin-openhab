@@ -18,6 +18,7 @@ import { DimmerController, isDimmerController } from "@controllers/dimmerControl
 import { isRollerShutterController, RollerShutterController } from "@controllers/rollerShutterController";
 import { RollerShutterSettings } from "@actions/rollerShutterAction";
 import { extractItemName } from "@managers/topicParser";
+import { nextShutterDirection } from "@managers/shutterDirection";
 
 const logger = streamDeck.logger.createScope("ActionManager");
 
@@ -385,6 +386,30 @@ class ActionManager extends EventEmitter {
   public sendCommand(settings: ItemSettings, command: string | number) {
     logger.debug(`Sending command ${command.toString()} to item ${settings.itemName}, with type ${JSON.stringify(settings.itemType)}`);
     openhabConnectionManager.sendCommand(settings.itemName, command);
+  }
+
+  /**
+   * Sends the next UP/DOWN direction command for a roller shutter item, and
+   * persists the direction to send on the following long press.
+   * @param itemName Item name
+   */
+  public sendShutterDirectionCommand(itemName: string): void {
+    const controllers = this.getRollerShutterControllers().filter(
+      (controller) => controller.itemName === itemName
+    );
+
+    controllers.forEach(controller => {
+      controller.action.getSettings<RollerShutterSettings>().then(async settings => {
+        const { toSend, toPersist } = nextShutterDirection(settings.latestCommand);
+
+        settings.latestCommand = toPersist;
+        await controller.action.setSettings(settings);
+
+        this.sendCommand(settings, toSend);
+      }).catch((error: unknown) => {
+        logger.error(error);
+      });
+    });
   }
 
 }
