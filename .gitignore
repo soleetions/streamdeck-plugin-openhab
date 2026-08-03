@@ -14,3 +14,10 @@ icons/out/**/**
 
 # Stream Deck package
 *.streamDeckPlugin
+
+# Build/test logs
+logs/
+
+# Local scratch (design docs, plans, subagent workspace)
+docs/superpowers/
+.superpowers/
