@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import type { MockInstance } from "vitest";
 import actionManager from "./actionManager";
 import type { RollerShutterSettings } from "@actions/rollerShutterAction";
 import type { KeyAction } from "@elgato/streamdeck";
@@ -27,7 +28,7 @@ function flushMicrotasks(): Promise<void> {
 }
 
 describe("ActionManager.sendShutterDirectionCommand", () => {
-	let sendCommandSpy: ReturnType<typeof vi.spyOn>;
+	let sendCommandSpy: MockInstance<typeof actionManager.sendCommand>;
 
 	beforeEach(() => {
 		sendCommandSpy = vi.spyOn(actionManager, "sendCommand").mockImplementation(() => undefined);
