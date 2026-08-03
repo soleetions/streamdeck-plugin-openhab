@@ -28,7 +28,11 @@ jobs:
               run: npm run lint
 
             - name: Test
-              run: npm test
+              run: npm run test:coverage
+
+            - name: Report coverage
+              uses: davelosert/vitest-coverage-report-action@v2
+              if: always()
 
             - name: Build
               run: npm run build
