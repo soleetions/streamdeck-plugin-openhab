@@ -4,48 +4,57 @@ import { RollerShutterAction, RollerShutterSettings } from "./rollerShutterActio
 import actionManager from "@managers/actionManager";
 import type { KeyAction, KeyDownEvent, KeyUpEvent, DialDownEvent, DialUpEvent } from "@elgato/streamdeck";
 
-function createSettings(): RollerShutterSettings {
-	return { title: "Blinds", itemName: "Blinds_1", state: "50", latestCommand: "" };
+interface FakeAction {
+	id: string;
+	setSettings: ReturnType<typeof vi.fn>;
 }
 
-function createFakeAction(id: string): KeyAction<RollerShutterSettings> {
-	return { id } as unknown as KeyAction<RollerShutterSettings>;
+function createSettings(latestCommand = ""): RollerShutterSettings {
+	return { title: "Blinds", itemName: "Blinds_1", state: "50", latestCommand };
 }
 
-function createKeyDownEvent(action: KeyAction<RollerShutterSettings>): KeyDownEvent<RollerShutterSettings> {
-	return { action } as unknown as KeyDownEvent<RollerShutterSettings>;
+function createFakeAction(id: string): FakeAction {
+	return {
+		id,
+		setSettings: vi.fn(() => Promise.resolve())
+	};
 }
 
-function createKeyUpEvent(action: KeyAction<RollerShutterSettings>, settings: RollerShutterSettings): KeyUpEvent<RollerShutterSettings> {
-	return { action, payload: { settings } } as unknown as KeyUpEvent<RollerShutterSettings>;
+function asKeyAction(action: FakeAction): KeyAction<RollerShutterSettings> {
+	return action as unknown as KeyAction<RollerShutterSettings>;
 }
 
-function createDialDownEvent(action: KeyAction<RollerShutterSettings>): DialDownEvent<RollerShutterSettings> {
-	return { action } as unknown as DialDownEvent<RollerShutterSettings>;
+function createKeyDownEvent(action: FakeAction): KeyDownEvent<RollerShutterSettings> {
+	return { action: asKeyAction(action) } as unknown as KeyDownEvent<RollerShutterSettings>;
 }
 
-function createDialUpEvent(action: KeyAction<RollerShutterSettings>, settings: RollerShutterSettings): DialUpEvent<RollerShutterSettings> {
-	return { action, payload: { settings } } as unknown as DialUpEvent<RollerShutterSettings>;
+function createKeyUpEvent(action: FakeAction, settings: RollerShutterSettings): KeyUpEvent<RollerShutterSettings> {
+	return { action: asKeyAction(action), payload: { settings } } as unknown as KeyUpEvent<RollerShutterSettings>;
+}
+
+function createDialDownEvent(action: FakeAction): DialDownEvent<RollerShutterSettings> {
+	return { action: asKeyAction(action) } as unknown as DialDownEvent<RollerShutterSettings>;
+}
+
+function createDialUpEvent(action: FakeAction, settings: RollerShutterSettings): DialUpEvent<RollerShutterSettings> {
+	return { action: asKeyAction(action), payload: { settings } } as unknown as DialUpEvent<RollerShutterSettings>;
 }
 
 describe("RollerShutterAction press handling", () => {
 	let sendCommandSpy: MockInstance<typeof actionManager.sendCommand>;
-	let sendDirectionSpy: MockInstance<typeof actionManager.sendShutterDirectionCommand>;
 
 	beforeEach(() => {
 		vi.useFakeTimers();
 		vi.setSystemTime(new Date("2026-01-01T00:00:00.000Z"));
 		sendCommandSpy = vi.spyOn(actionManager, "sendCommand").mockImplementation(() => undefined);
-		sendDirectionSpy = vi.spyOn(actionManager, "sendShutterDirectionCommand").mockImplementation(() => undefined);
 	});
 
 	afterEach(() => {
 		vi.useRealTimers();
 		sendCommandSpy.mockRestore();
-		sendDirectionSpy.mockRestore();
 	});
 
-	it("sends STOP on a short button press", () => {
+	it("sends STOP on a short button press, without touching settings", () => {
 		const rollerShutter = new RollerShutterAction();
 		const action = createFakeAction("action-1");
 		const settings = createSettings();
@@ -55,10 +64,10 @@ describe("RollerShutterAction press handling", () => {
 		rollerShutter.onKeyUp(createKeyUpEvent(action, settings));
 
 		expect(sendCommandSpy).toHaveBeenCalledWith(settings, "STOP");
-		expect(sendDirectionSpy).not.toHaveBeenCalled();
+		expect(action.setSettings).not.toHaveBeenCalled();
 	});
 
-	it("sends the direction command on a long button press", () => {
+	it("sends and persists UP on a long button press, when nothing was sent before", () => {
 		const rollerShutter = new RollerShutterAction();
 		const action = createFakeAction("action-1");
 		const settings = createSettings();
@@ -67,11 +76,23 @@ describe("RollerShutterAction press handling", () => {
 		vi.setSystemTime(new Date("2026-01-01T00:00:00.700Z"));
 		rollerShutter.onKeyUp(createKeyUpEvent(action, settings));
 
-		expect(sendDirectionSpy).toHaveBeenCalledWith(action);
-		expect(sendCommandSpy).not.toHaveBeenCalled();
+		expect(sendCommandSpy).toHaveBeenCalledWith(expect.objectContaining({ latestCommand: "UP" }), "UP");
+		expect(action.setSettings).toHaveBeenCalledWith(expect.objectContaining({ latestCommand: "UP" }));
 	});
 
-	it("sends STOP on a short dial push", () => {
+	it("sends and persists the opposite direction on a long button press, when UP was sent last", () => {
+		const rollerShutter = new RollerShutterAction();
+		const action = createFakeAction("action-1");
+		const settings = createSettings("UP");
+
+		rollerShutter.onKeyDown(createKeyDownEvent(action));
+		vi.setSystemTime(new Date("2026-01-01T00:00:00.700Z"));
+		rollerShutter.onKeyUp(createKeyUpEvent(action, settings));
+
+		expect(sendCommandSpy).toHaveBeenCalledWith(expect.objectContaining({ latestCommand: "DOWN" }), "DOWN");
+	});
+
+	it("sends STOP on a short dial push, without touching settings", () => {
 		const rollerShutter = new RollerShutterAction();
 		const action = createFakeAction("action-1");
 		const settings = createSettings();
@@ -81,10 +102,10 @@ describe("RollerShutterAction press handling", () => {
 		rollerShutter.onDialUp(createDialUpEvent(action, settings));
 
 		expect(sendCommandSpy).toHaveBeenCalledWith(settings, "STOP");
-		expect(sendDirectionSpy).not.toHaveBeenCalled();
+		expect(action.setSettings).not.toHaveBeenCalled();
 	});
 
-	it("sends the direction command on a long dial push", () => {
+	it("sends and persists the direction on a long dial push", () => {
 		const rollerShutter = new RollerShutterAction();
 		const action = createFakeAction("action-1");
 		const settings = createSettings();
@@ -93,8 +114,8 @@ describe("RollerShutterAction press handling", () => {
 		vi.setSystemTime(new Date("2026-01-01T00:00:00.700Z"));
 		rollerShutter.onDialUp(createDialUpEvent(action, settings));
 
-		expect(sendDirectionSpy).toHaveBeenCalledWith(action);
-		expect(sendCommandSpy).not.toHaveBeenCalled();
+		expect(sendCommandSpy).toHaveBeenCalledWith(expect.objectContaining({ latestCommand: "UP" }), "UP");
+		expect(action.setSettings).toHaveBeenCalledWith(expect.objectContaining({ latestCommand: "UP" }));
 	});
 
 	it("tracks presses on two different instances independently", () => {
@@ -115,6 +136,8 @@ describe("RollerShutterAction press handling", () => {
 		rollerShutter.onKeyUp(createKeyUpEvent(actionB, settingsB));
 
 		expect(sendCommandSpy).toHaveBeenCalledWith(settingsA, "STOP");
-		expect(sendDirectionSpy).toHaveBeenCalledWith(actionB);
+		expect(actionA.setSettings).not.toHaveBeenCalled();
+		expect(sendCommandSpy).toHaveBeenCalledWith(expect.objectContaining({ itemName: "Blinds_1", latestCommand: "UP" }), "UP");
+		expect(actionB.setSettings).toHaveBeenCalledWith(expect.objectContaining({ latestCommand: "UP" }));
 	});
 });

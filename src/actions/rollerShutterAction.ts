@@ -2,6 +2,7 @@ import { action, KeyDownEvent, KeyUpEvent, WillAppearEvent, WillDisappearEvent, 
 import streamDeck from "@elgato/streamdeck";
 import { BaseSettings } from "@interfaces/itemSettings";
 import actionManager from "@managers/actionManager";
+import { nextShutterDirection } from "@managers/shutterDirection";
 import { DebouncedDialAction, PressAction } from "./debouncedDialAction";
 
 const logger = streamDeck.logger.createScope("RollerShutterAction");
@@ -83,8 +84,15 @@ export class RollerShutterAction extends DebouncedDialAction<RollerShutterSettin
 	}
 
 	protected override onLongPress(action: PressAction<RollerShutterSettings>, settings: RollerShutterSettings): void {
-		logger.debug(`Long press for Roller shutter item name: ${settings.itemName}, sending direction command`);
-		actionManager.sendShutterDirectionCommand(action);
+		const { toSend, toPersist } = nextShutterDirection(settings.latestCommand);
+		settings.latestCommand = toPersist;
+
+		action.setSettings(settings).catch((error: unknown) => {
+			logger.error(error);
+		});
+
+		logger.debug(`Long press for Roller shutter item name: ${settings.itemName}, sending ${toSend}`);
+		actionManager.sendCommand(settings, toSend);
 	}
 
 }
