@@ -17,6 +17,12 @@ export default defineConfig({
 		}
 	},
 	test: {
+		// @elgato/streamdeck's file-based logger (FileTarget) has a race when multiple
+		// vitest worker processes concurrently rotate the same log file, which surfaces as
+		// intermittent `ENOENT ... rename '<repo>/logs/*.N.log' -> '.../*.M.log'` failures.
+		// Disabling file parallelism serializes test files across a single process, avoiding
+		// the race entirely at a negligible cost (~7s) for this suite's size.
+		fileParallelism: false,
 		coverage: {
 			provider: "v8",
 			reporter: ["text", "json-summary", "json"],
