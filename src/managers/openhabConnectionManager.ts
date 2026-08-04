@@ -239,8 +239,12 @@ class OpenhabConnectionManager extends EventEmitter {
     }
 
     if (this.socket) {
-      this.socket.close();
+      // Null out the reference before closing so the "close" handler's
+      // stale-socket check (`this.socket === socket`) is already false by
+      // the time it runs, even if close() emits "close" synchronously.
+      const socket = this.socket;
       this.socket = null;
+      socket.close();
     }
 
     if (this.heartbeatTimer) {

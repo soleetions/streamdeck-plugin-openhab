@@ -21,3 +21,6 @@ logs/
 # Local scratch (design docs, plans, subagent workspace)
 docs/superpowers/
 .superpowers/
+
+# Test coverage
+coverage/
