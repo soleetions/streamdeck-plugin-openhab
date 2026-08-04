@@ -93,6 +93,9 @@ describe("OpenhabConnectionManager", () => {
 		vi.restoreAllMocks();
 	});
 
+	// Must run before any test calls updateSettings()/connectWithSettings(): the manager
+	// is a singleton, so once websocketUrl/restUrl are set they persist for the rest of
+	// the file, and this test relies on them being unset.
 	it("does not open a socket until server settings are configured", () => {
 		openhabConnectionManager.connect();
 		expect(wsState.FakeWebSocket.instances).toHaveLength(0);
@@ -154,7 +157,11 @@ describe("OpenhabConnectionManager", () => {
 
 		second.readyState = wsState.FakeWebSocket.CLOSED;
 		second.emit("close");
-		vi.advanceTimersByTime(2000);
+		vi.advanceTimersByTime(1999);
+		// Not yet reconnected — proves the second delay is strictly greater than 1000ms
+		// (i.e. genuinely exponential), not just a flat 1000ms delay reused every time.
+		expect(wsState.FakeWebSocket.instances).toHaveLength(2);
+		vi.advanceTimersByTime(1);
 		expect(wsState.FakeWebSocket.instances).toHaveLength(3);
 	});
 
