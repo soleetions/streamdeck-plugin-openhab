@@ -7,7 +7,7 @@ class TestController extends BaseController {
 	refreshTitle(): void {
 		// no-op for testing the base class's own behavior
 	}
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars -- abstract method stub signature must match BaseController
 	setState(state: string): void {
 		// no-op for testing the base class's own behavior
 	}
@@ -46,7 +46,7 @@ describe("BaseController", () => {
 
 	it("does not throw when the underlying setTitle call rejects", async () => {
 		const action = createAction();
-		// eslint-disable-next-line @typescript-eslint/no-misused-promises
+		// eslint-disable-next-line @typescript-eslint/no-misused-promises -- deliberately rejecting mock to test setTitle's error handling
 		action.setTitle.mockImplementation(() => Promise.reject(new Error("boom")));
 		const controller = new TestController(asKeyAction(action), "Item_1");
 
